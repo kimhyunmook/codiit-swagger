@@ -1,0 +1,4213 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["App"]
+      }
+    },
+    "/s3/upload": {
+      "post": {
+        "operationId": "S3Controller_uploadFile",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["S3"]
+      }
+    },
+    "/s3/download/{key}": {
+      "get": {
+        "operationId": "S3Controller_getFile",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["S3"]
+      }
+    },
+    "/s3/delete/{key}": {
+      "delete": {
+        "operationId": "S3Controller_deleteFile",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["S3"]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "로그인 성공했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "user": {
+                      "id": "abcd1234",
+                      "email": "user@example.com",
+                      "name": "TestUser",
+                      "type": "Buyer",
+                      "points": "1000"
+                    },
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "로그인 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "이메일 또는 비밀번호가 올바르지 않습니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자를 찾을 수 없습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "로그인 및 Access/Refresh 토큰 발급",
+        "tags": ["Auth"]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Access Token 재발급 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - 유효하지 않거나 만료된 Refresh Token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "Unauthorized",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Refresh Token으로 Access Token 재발급",
+        "tags": ["Auth"]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "UserController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "회원 가입 성공한 유저의 값을 반환",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "이미 존재하는 유저입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConFlictDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "회원가입",
+        "tags": ["User"]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "operationId": "UserController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "내 정보 조회 성공 및 유저 정보 반환",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "유저 정보 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 정보 조회",
+        "tags": ["User"]
+      },
+      "patch": {
+        "operationId": "UserController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "내 정보 수정 성공 및 수정된 유저 정보 반환",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "존재하지 않는 유저 입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 정보 수정",
+        "tags": ["User"]
+      }
+    },
+    "/users/me/likes": {
+      "get": {
+        "operationId": "UserController_getLikedStores",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "내 관심 스토어 조회 성공 및 정보 반환",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LikesStoreResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "존재하지 않는 유저 입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "관심 스토어 조회",
+        "tags": ["User"]
+      }
+    },
+    "/users/delete": {
+      "delete": {
+        "description": "현재 로그인한 사용자의 계정을 삭제합니다",
+        "operationId": "UserController_deleteUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "회원 탈퇴 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "존재하지 않는 유저 입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "회원 탈퇴",
+        "tags": ["User"]
+      }
+    },
+    "/products": {
+      "post": {
+        "operationId": "ProductController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "등록된 상품 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "이미 상품이 존재합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductBadRequestDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "스토어를 찾을 수 없습니다. | 카테고리가 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "새 상품 등록",
+        "tags": ["Product"]
+      },
+      "get": {
+        "description": "페이징, 검색, 정렬이 가능합니다.",
+        "operationId": "ProductController_findList",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "페이지 번호",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "페이지 리스트 갯수",
+            "schema": {
+              "example": 16,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "검색할 단어",
+            "schema": {
+              "example": "가디건",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "정렬 옵션",
+            "examples": {
+              "mostReviewed": {
+                "summary": "리뷰 많은 순",
+                "value": "mostReviewed"
+              },
+              "recent": {
+                "summary": "등록일 순",
+                "value": "recent"
+              },
+              "lowPrice": {
+                "summary": "가격 낮은 순",
+                "value": "lowPrice"
+              },
+              "highPrice": {
+                "summary": "가격 높은 순",
+                "value": "highPrice"
+              },
+              "highRating": {
+                "summary": "별점 높은 순",
+                "value": "highRating"
+              }
+            },
+            "schema": {
+              "enum": ["mostReviewed", "recent", "lowPrice", "highPrice", "highRating"],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "상품 리스트 및 메타정보 반환",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없습니다. | 카테고리가 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "상품 목록 조회",
+        "tags": ["Product"]
+      }
+    },
+    "/products/{productId}": {
+      "patch": {
+        "operationId": "ProductController_update",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "description": "조회할 상품 ID",
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "수정된 상품 정보 반환합니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없습니다. | 카테고리가 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "상품 수정",
+        "tags": ["Product"]
+      },
+      "get": {
+        "description": "상품 정보 조회",
+        "operationId": "ProductController_findProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "description": "조회할 상품 ID",
+            "schema": {
+              "example": "cjld9a5b0000000000000001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "상품 정보 및 메타정보 반환",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "상품 정보 조회",
+        "tags": ["Product"]
+      },
+      "delete": {
+        "description": "본인이 소유한 상품을 삭제합니다.",
+        "operationId": "ProductController_remove",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "description": "삭제할 상품 ID",
+            "schema": {
+              "example": "cjld9a5b0000000000000001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "상품이 정상적으로 삭제되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductForbiddenDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "상품 삭제 권한이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "상품 삭제",
+        "tags": ["Product"]
+      }
+    },
+    "/products/{productId}/inquiries": {
+      "post": {
+        "description": "상품에 대한 문의를 등록합니다.",
+        "operationId": "ProductController_createInquiry",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "description": "상품 Id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInquiryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "상품 문의를 만들고 생성된 문의 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "상품 문의 등록",
+        "tags": ["Product"]
+      },
+      "get": {
+        "description": "상품에 대한 모든 문의를 조회합니다.",
+        "operationId": "ProductController_getListInquiry",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "상품 문의 리스트를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InquiryResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "상품 문의 조회",
+        "tags": ["Product"]
+      }
+    },
+    "/stores": {
+      "post": {
+        "operationId": "StoreController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterStoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "등록된 스토어 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "새 스토어 등록",
+        "tags": ["Store"]
+      }
+    },
+    "/stores/{storeId}": {
+      "patch": {
+        "operationId": "StoreController_update",
+        "parameters": [
+          {
+            "name": "storeId",
+            "required": true,
+            "in": "path",
+            "description": "수정할 스토어 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "수정된 스토어 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "스토어 수정",
+        "tags": ["Store"]
+      },
+      "get": {
+        "operationId": "StoreController_findStore",
+        "parameters": [
+          {
+            "name": "storeId",
+            "required": true,
+            "in": "path",
+            "description": "조회할 스토어 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "스토어 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "스토어 조회",
+        "tags": ["Store"]
+      }
+    },
+    "/stores/{storeId}/favorite": {
+      "post": {
+        "operationId": "StoreController_favorteStoreRegister",
+        "parameters": [
+          {
+            "name": "storeId",
+            "required": true,
+            "in": "path",
+            "description": "관심 스토어 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "관심 스토어 등록",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteStoreResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "관심 스토어 등록",
+        "tags": ["Store"]
+      },
+      "delete": {
+        "operationId": "StoreController_favorteStoreDelete",
+        "parameters": [
+          {
+            "name": "storeId",
+            "required": true,
+            "in": "path",
+            "description": "관심 스토어 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "관심 스토어 해제",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteStoreResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "관심 스토어 해제",
+        "tags": ["Store"]
+      }
+    },
+    "/cart": {
+      "post": {
+        "operationId": "CartController_createCart",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "장바구니가 성공적으로 생성되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "cart1",
+                    "buyerId": "buyer",
+                    "quantity": 2,
+                    "createdAt": "2025-06-02T07:44:08.294Z",
+                    "updatedAt": "2025-06-02T07:44:08.294Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증에 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한애 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "장바구니 생성",
+        "tags": ["Cart"]
+      },
+      "get": {
+        "operationId": "CartController_getCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "장바구니가 성공적으로 조회되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증에 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "장바구니에 아이템이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "장바구니 조회",
+        "tags": ["Cart"]
+      },
+      "patch": {
+        "description": "상품을 추가하거나 수량을 수정합니다",
+        "operationId": "CartController_updateCart",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "장바구니가 성공적으로 수정되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartItemDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증이 필요합니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 없습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": " 장바구니 수정(아이템 추가/아이템 수량 수정)",
+        "tags": ["Cart"]
+      }
+    },
+    "/cart/{cartItemId}": {
+      "delete": {
+        "operationId": "CartController_deleteCartItem",
+        "parameters": [
+          {
+            "name": "cartItemId",
+            "required": true,
+            "in": "path",
+            "description": "삭제할 장바구니 아이템 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "삭제에 성공했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증에 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "장바구니에 아이템이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "장바구니 아이템 삭제(카트 아이템 ID)",
+        "tags": ["Cart"]
+      },
+      "get": {
+        "operationId": "CartController_getCartItemDetail",
+        "parameters": [
+          {
+            "name": "cartItemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "장바구니 아이템 상세 조회에 성공했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartItemDetailDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증에 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "장바구니에 아이템이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "장바구니 아이템 상세 조회(카트 아이템 ID)",
+        "tags": ["Cart"]
+      }
+    },
+    "/orders": {
+      "get": {
+        "description": "로그인한 사용자의 모든 주문을 페이지네이션 포함하여 조회합니다.",
+        "operationId": "OrderController_getOrders",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "페이지당 항목 수",
+            "schema": {
+              "example": 3,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "페이지 번호",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "주문 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증을 실패 했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 필요합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자를 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "주문 목록 조회(페이지네이션 포함)",
+        "tags": ["orders"]
+      },
+      "post": {
+        "operationId": "OrderController_createOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "주문 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "사용자를 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "주문 생성",
+        "tags": ["orders"]
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "description": "특정 주문의 상세 정보를 조회합니다.",
+        "operationId": "OrderController_getOrderDetail",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "description": "주문 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "주문 상세 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "사용자를 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 필요합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "주문은 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "주문 상세 조회(OrderId)",
+        "tags": ["orders"]
+      },
+      "delete": {
+        "operationId": "OrderController_cancelOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "description": "취소할 주문 ID",
+            "schema": {
+              "example": "order1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "주문 취소 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증이 필요합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "사용자를 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "주문을 찾을 수 없습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "주문 취소(OrderId)",
+        "tags": ["orders"]
+      },
+      "patch": {
+        "description": " 구매자 이름, 전화번호, 배송지를 수정합니다.",
+        "operationId": "OrderController_updateOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "주문 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "사용자를 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "주문을 찾을 수 없습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "주문 정보 수정(이름/전화번호/배송지)",
+        "tags": ["orders"]
+      }
+    },
+    "/review/{reviewId}": {
+      "patch": {
+        "operationId": "ReviewController_updateReview",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "required": true,
+            "in": "path",
+            "description": "수정할 리뷰 ID",
+            "schema": {
+              "example": "review1",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "리뷰를 수정했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "사용자를 찾을 수 없습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "리뷰를 찾을 수 없습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "리뷰 수정(리뷰ID)",
+        "tags": ["review"]
+      },
+      "delete": {
+        "operationId": "ReviewController_deleteReview",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "required": true,
+            "in": "path",
+            "description": "삭제할 리뷰 ID",
+            "schema": {
+              "example": "review1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "리뷰를 삭제 했습니다"
+          },
+          "401": {
+            "description": "사용자를 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "리뷰를 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "리뷰 삭제(리뷰Id)",
+        "tags": ["review"]
+      },
+      "get": {
+        "operationId": "ReviewController_getReviewById",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "required": true,
+            "in": "path",
+            "description": "조회할 리뷰 ID",
+            "schema": {
+              "example": "review1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "리뷰 상세 정보 조회에 성공했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증에 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "리뷰를 찾을 수 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "리뷰 상세 조회(리뷰Id)",
+        "tags": ["review"]
+      }
+    },
+    "/product/{productId}/reviews": {
+      "post": {
+        "operationId": "ProductReviewController_createReview",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "리뷰를 작성했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "사용자를 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "상품 리뷰 작성(ProductID)",
+        "tags": ["review"]
+      },
+      "get": {
+        "operationId": "ProductReviewController_getProductReviews",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 5,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "사용자를 찾지 못했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "리뷰를 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "상품 리뷰 목록 조회(페이지네이션 포함/ProducId)",
+        "tags": ["review"]
+      }
+    },
+    "/inquiries/{inquiryId}": {
+      "get": {
+        "description": "문의 상세정보 조회했습니다.",
+        "operationId": "InquiryController_findOneInquiry",
+        "parameters": [
+          {
+            "name": "inquiryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "문의 상세 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "문의가 존재하지 않습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundInquiryDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "문의 상세 조회",
+        "tags": ["Inquiry"]
+      },
+      "patch": {
+        "description": "문의를 수정 입니다.",
+        "operationId": "InquiryController_updateInquiry",
+        "parameters": [
+          {
+            "name": "inquiryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInquiryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "문의 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 수정",
+        "tags": ["Inquiry"]
+      },
+      "delete": {
+        "description": "문의를 삭제 했습니다.",
+        "operationId": "InquiryController_deleteInquiry",
+        "parameters": [
+          {
+            "name": "inquiryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "문의 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 삭제",
+        "tags": ["Inquiry"]
+      }
+    },
+    "/inquiries/{replyId}/replies": {
+      "get": {
+        "description": "문의 답변 상세 정보를 정회했습니다.",
+        "operationId": "InquiryController_findOneReply",
+        "parameters": [
+          {
+            "name": "replyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "문의 답변 상세 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryReplyResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "문의 답변 상세 조회",
+        "tags": ["Inquiry"]
+      },
+      "patch": {
+        "description": "문의 답변을 수정입니다.",
+        "operationId": "InquiryController_replyUpdate",
+        "parameters": [
+          {
+            "name": "replyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInquiryReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "문의 답변 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryReplyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 답변 수정",
+        "tags": ["Inquiry"]
+      }
+    },
+    "/inquiries/{inquiryId}/replies": {
+      "post": {
+        "description": "문의 답변 생성입니다.",
+        "operationId": "InquiryController_replyCreate",
+        "parameters": [
+          {
+            "name": "inquiryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInquiryReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "문의 답변 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryReplyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "문의 답변",
+        "tags": ["Inquiry"]
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "description": "대시보드 정보를 조회합니다.",
+        "operationId": "DashboardController_dashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "대시보드 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindDashboardResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "대시보드 조회",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/dashboard/run": {
+      "post": {
+        "operationId": "DashboardController_runDashboard",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "대시보드 실행 (development 전용)",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/notifications": {
+      "get": {
+        "description": "유저 타입에 따라 알람을 조회합니다",
+        "operationId": "AlarmController_getAlarms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "알람 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlarmDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청입니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "사용자를 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "알람을 찾지 못했습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "알람 조회(UserType에 따른 알람 조회)",
+        "tags": ["Alarm"]
+      }
+    },
+    "/notifications/{alarmId}/check": {
+      "patch": {
+        "description": "알람을 읽음 처리합니다.",
+        "operationId": "AlarmController_markAsChecked",
+        "parameters": [
+          {
+            "name": "alarmId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "알람 읽음 처리 완료"
+          },
+          "400": {
+            "description": "잘못된 요청입니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "잘못된 요청입니다.",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "사용자를 찾지 못했습니다",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 403,
+                    "message": "접근 권한이 없습니다.",
+                    "error": "Forbidden"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "해당 알람이 없습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "요청한 리소스를 찾을 수 없습니다.",
+                    "error": "Not Found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "알람 읽음 처리",
+        "tags": ["Alarm"]
+      }
+    }
+  },
+  "info": {
+    "title": "CODI-IT",
+    "description": "API 설명",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "buyer@naver.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "test1234"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "김유저",
+            "description": "이름"
+          },
+          "email": {
+            "type": "string",
+            "example": "user01@example.com",
+            "description": "이메일"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "비밀번호"
+          },
+          "type": {
+            "type": "string",
+            "example": "BUYER",
+            "description": "유저 타입",
+            "default": "BUYER"
+          }
+        },
+        "required": ["name", "email", "password"]
+      },
+      "GradeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Green",
+            "description": "등급 이름"
+          },
+          "id": {
+            "type": "string",
+            "example": "CUID",
+            "description": "등급 ID"
+          },
+          "rate": {
+            "type": "number",
+            "example": 0,
+            "description": "할인률"
+          },
+          "minAmount": {
+            "type": "number",
+            "example": 0,
+            "description": "등급 달성 최소 금액"
+          }
+        },
+        "required": ["name", "id", "rate", "minAmount"]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "유저 KEY ID",
+            "example": "user_cuid_123"
+          },
+          "name": {
+            "type": "string",
+            "description": "유저 이름",
+            "example": "김유저"
+          },
+          "email": {
+            "type": "string",
+            "description": "유저 이메일",
+            "example": "email@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "유저 비밀번호 (hash)",
+            "example": "$2b$10$abc..."
+          },
+          "type": {
+            "type": "string",
+            "description": "유저 타입",
+            "enum": ["BUYER", "SELLER"],
+            "example": "BUYER"
+          },
+          "points": {
+            "type": "number",
+            "description": "유저 포인트",
+            "example": 999
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "유저 생성일",
+            "example": "2025-05-29T06:00:41.976Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "유저 정보 업데이트일",
+            "example": "2025-05-29T06:00:41.976Z"
+          },
+          "gradeId": {
+            "type": "string",
+            "description": "유저 등급 ID",
+            "example": "grade_green"
+          },
+          "grade": {
+            "description": "등급 정보 (nullable)",
+            "example": {
+              "id": "grade_green",
+              "name": "그린",
+              "rate": 10,
+              "minAmount": 50000
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "password",
+          "type",
+          "points",
+          "createdAt",
+          "updatedAt",
+          "gradeId"
+        ]
+      },
+      "UserConFlictDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "에러 메세지",
+            "example": "이미 존재하는 유저입니다."
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP 상태 코드",
+            "example": 409
+          },
+          "error": {
+            "type": "string",
+            "description": "에러 타입",
+            "example": "ConFlict"
+          }
+        },
+        "required": ["message", "statusCode", "error"]
+      },
+      "UserNotFoundDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "에러 메세지",
+            "example": "유저를 찾을 수 없습니다."
+          },
+          "statusCode": {
+            "type": "number",
+            "description": "HTTP 상태 코드",
+            "example": 404
+          },
+          "error": {
+            "type": "string",
+            "description": "에러 타입",
+            "example": "Not Found"
+          }
+        },
+        "required": ["message", "statusCode", "error"]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "김유저",
+            "description": "이름"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "비밀번호"
+          }
+        }
+      },
+      "StoreResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "스토어 ID",
+            "example": "CUID"
+          },
+          "name": {
+            "type": "string",
+            "description": "스토어 이름",
+            "example": "CODI-IT"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "스토어 생성일",
+            "example": "2025-06-01T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "스토어 정보 업데이트일",
+            "example": "2025-06-01T13:00:00.000Z"
+          },
+          "userId": {
+            "type": "string",
+            "description": "스토어 소유자 유저 ID",
+            "example": "CUID"
+          },
+          "address": {
+            "type": "string",
+            "description": "주소",
+            "example": "서울특별시 강남구 테헤란로 123"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "전화번호",
+            "example": "010-1234-5678"
+          },
+          "content": {
+            "type": "string",
+            "description": "스토어 설명",
+            "example": "저희는 CODI-IT 입니다."
+          },
+          "image": {
+            "type": "string",
+            "description": "가게 이미지 URL",
+            "example": "https://example.com/image.jpg"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "address",
+          "phoneNumber",
+          "content",
+          "image"
+        ]
+      },
+      "LikesStoreResponse": {
+        "type": "object",
+        "properties": {
+          "storeId": {
+            "type": "string",
+            "example": "CUID",
+            "description": "스토어 ID"
+          },
+          "userId": {
+            "type": "string",
+            "example": "CUID",
+            "description": "유저 ID"
+          },
+          "store": {
+            "description": "가게 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StoreResponse"
+              }
+            ]
+          }
+        },
+        "required": ["storeId", "userId", "store"]
+      },
+      "RegisterProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "가디건",
+            "description": "상품 이름"
+          },
+          "price": {
+            "type": "number",
+            "example": 20000,
+            "description": "정가"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://s3-URL",
+            "description": "image url"
+          },
+          "discountRate": {
+            "type": "number",
+            "example": 10,
+            "description": "할인율"
+          },
+          "discountStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-05T09:46:55.566Z",
+            "description": "할인 시작 날짜"
+          },
+          "discountEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-05T09:46:55.566Z",
+            "description": "할인 종료 날짜"
+          },
+          "categoryId": {
+            "example": "categoryId",
+            "description": "카테고리 ID",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "price", "categoryId"]
+      },
+      "CategoryNameDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1,
+            "description": "카테고리 ID"
+          },
+          "name": {
+            "type": "object",
+            "example": {
+              "en": "long Sleeve T-shirt",
+              "ko": "긴팔 티셔츠"
+            },
+            "description": "카테고리 이름 리스트 (JSON 배열)"
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "ReviewDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-05-28T12:34:56Z",
+            "description": "작성 일시"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-05-29T01:23:45Z",
+            "description": "수정 일시"
+          },
+          "content": {
+            "type": "string",
+            "example": "좋은 제품입니다!",
+            "description": "리뷰 내용"
+          },
+          "rating": {
+            "type": "number",
+            "example": 5,
+            "description": "별점"
+          },
+          "user": {
+            "type": "object",
+            "example": {
+              "id": "user-cuid",
+              "username": "johndoe"
+            },
+            "description": "작성자 정보"
+          }
+        },
+        "required": ["createdAt", "updatedAt", "content", "rating"]
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "CUID",
+            "description": "상품 ID"
+          },
+          "storeId": {
+            "type": "string",
+            "example": "CUID",
+            "description": "스토어 ID"
+          },
+          "name": {
+            "type": "string",
+            "example": "가디건",
+            "description": "상품 이름"
+          },
+          "price": {
+            "type": "number",
+            "example": 20000,
+            "description": "정가"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://s3-URL",
+            "description": "상품 이미지 URL"
+          },
+          "discountRate": {
+            "type": "number",
+            "example": 10,
+            "description": "할인율(%)"
+          },
+          "discountStartTime": {
+            "type": "object",
+            "example": "2025-05-28T12:34:56Z",
+            "description": "할인 시작 날짜 (nullable)"
+          },
+          "discountEndTime": {
+            "type": "object",
+            "example": "2025-05-30T12:34:56Z",
+            "description": "할인 종료 날짜 (nullable)"
+          },
+          "category": {
+            "description": "카테고리 정보 (복수)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryNameDto"
+            }
+          },
+          "reviews": {
+            "description": "상품에 대한 리뷰 리스트",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-01T00:00:00Z",
+            "description": "생성일"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-02T00:00:00Z",
+            "description": "수정일"
+          }
+        },
+        "required": [
+          "id",
+          "storeId",
+          "name",
+          "price",
+          "image",
+          "discountRate",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ProductBadRequestDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "잘못된 요청입니다."
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": ["statusCode", "message", "error"]
+      },
+      "ProductNotFoundDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 404
+          },
+          "message": {
+            "type": "string",
+            "example": "상품을 찾을 수 없습니다."
+          },
+          "error": {
+            "type": "string",
+            "example": "Not Found"
+          }
+        },
+        "required": ["statusCode", "message", "error"]
+      },
+      "UpdateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "가디건",
+            "description": "상품 이름"
+          },
+          "price": {
+            "type": "number",
+            "example": 20000,
+            "description": "정가"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://s3-URL",
+            "description": "image url"
+          },
+          "discountRate": {
+            "type": "number",
+            "example": 10,
+            "description": "할인율"
+          },
+          "discountStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-05T09:46:55.566Z",
+            "description": "할인 시작 날짜"
+          },
+          "discountEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-05T09:46:55.566Z",
+            "description": "할인 종료 날짜"
+          },
+          "categoryId": {
+            "example": "categoryId",
+            "description": "카테고리 ID",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ProductForbiddenDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 403
+          },
+          "message": {
+            "type": "string",
+            "example": "권한이 없습니다."
+          },
+          "error": {
+            "type": "string",
+            "example": "Forbidden"
+          }
+        },
+        "required": ["statusCode", "message", "error"]
+      },
+      "CreateInquiryDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "문의 제목",
+            "example": " 상품 문의합니다."
+          },
+          "content": {
+            "type": "string",
+            "description": "문의 내용",
+            "example": "문의 내용입니다."
+          },
+          "isSecret": {
+            "type": "boolean",
+            "description": "비밀 글",
+            "example": false
+          }
+        },
+        "required": ["title", "content"]
+      },
+      "InquiryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "문의 ID",
+            "example": "CUID"
+          },
+          "userId": {
+            "type": "string",
+            "description": "상용자 ID",
+            "example": "CUID"
+          },
+          "productId": {
+            "type": "string",
+            "description": "상품 ID",
+            "example": "CUID"
+          },
+          "title": {
+            "type": "string",
+            "description": "문의 제목",
+            "example": "상품 문의"
+          },
+          "content": {
+            "type": "string",
+            "description": "문의 내용",
+            "example": "문의 내용입니다."
+          },
+          "status": {
+            "type": "string",
+            "description": "답변 상태",
+            "example": "CompletedAnswer"
+          },
+          "isSecret": {
+            "type": "boolean",
+            "description": "비밀 급",
+            "example": false
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "문의 생성 날짜",
+            "example": "2023-10-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "문의 수정 날짜",
+            "example": "2023-10-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "productId",
+          "title",
+          "content",
+          "status",
+          "isSecret",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "RegisterStoreDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "이름",
+            "example": "my Store"
+          },
+          "address": {
+            "type": "string",
+            "description": "주소",
+            "example": "경기도 부천시 상동"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "전화번호",
+            "example": "010-3333-4444"
+          },
+          "content": {
+            "type": "string",
+            "description": "내용",
+            "example": "저희는 트렌드에 맞춘 옷, 악세사리를 취급하고 있습니다."
+          },
+          "image": {
+            "type": "string",
+            "description": "이미지 URL 또는 경로",
+            "example": "https://S3-URL"
+          }
+        },
+        "required": ["name", "address", "phoneNumber", "content", "image"]
+      },
+      "UpdateStoreDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "이름",
+            "example": "my Store"
+          },
+          "address": {
+            "type": "string",
+            "description": "주소",
+            "example": "경기도 부천시 상동"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "전화번호",
+            "example": "010-3333-4444"
+          },
+          "content": {
+            "type": "string",
+            "description": "내용",
+            "example": "저희는 트렌드에 맞춘 옷, 악세사리를 취급하고 있습니다."
+          },
+          "image": {
+            "type": "string",
+            "description": "이미지 URL 또는 경로",
+            "example": "https://S3-URL"
+          }
+        }
+      },
+      "FavoriteStoreResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "register"
+          },
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "store": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StoreResponse"
+              }
+            ]
+          }
+        },
+        "required": ["type", "success", "store"]
+      },
+      "StoreDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "name",
+          "address",
+          "phoneNumber",
+          "content",
+          "image",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SizeInfoDto": {
+        "type": "object",
+        "properties": {
+          "en": {
+            "type": "string"
+          },
+          "ko": {
+            "type": "string"
+          }
+        },
+        "required": ["en", "ko"]
+      },
+      "SizeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "size": {
+            "$ref": "#/components/schemas/SizeInfoDto"
+          }
+        },
+        "required": ["id", "size"]
+      },
+      "StockDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "sizeId": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "size": {
+            "$ref": "#/components/schemas/SizeDto"
+          }
+        },
+        "required": ["id", "productId", "sizeId", "quantity", "size"]
+      },
+      "ProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "storeId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "discountRate": {
+            "type": "number"
+          },
+          "discountStartTime": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "discountEndTime": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "store": {
+            "$ref": "#/components/schemas/StoreDto"
+          },
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "storeId",
+          "name",
+          "price",
+          "image",
+          "discountRate",
+          "discountStartTime",
+          "discountEndTime",
+          "createdAt",
+          "updatedAt",
+          "store",
+          "stocks"
+        ]
+      },
+      "CartItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cartId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "sizeId": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductDto"
+          }
+        },
+        "required": [
+          "id",
+          "cartId",
+          "productId",
+          "sizeId",
+          "quantity",
+          "createdAt",
+          "updatedAt",
+          "product"
+        ]
+      },
+      "CartResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "buyerId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItemDto"
+            }
+          }
+        },
+        "required": ["id", "buyerId", "quantity", "createdAt", "updatedAt", "items"]
+      },
+      "UpdateCartDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "상품 ID",
+            "example": "product3"
+          },
+          "sizeId": {
+            "type": "number",
+            "description": " 사이즈 Id",
+            "example": "3"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "수량(1 이상)",
+            "example": 2,
+            "minimum": 1
+          }
+        },
+        "required": ["productId", "sizeId", "quantity"]
+      },
+      "CartDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "buyerId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": ["id", "buyerId", "quantity", "createdAt", "updatedAt"]
+      },
+      "CartItemDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cartId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "sizeId": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductDto"
+          },
+          "cart": {
+            "$ref": "#/components/schemas/CartDto"
+          }
+        },
+        "required": [
+          "id",
+          "cartId",
+          "productId",
+          "sizeId",
+          "quantity",
+          "createdAt",
+          "updatedAt",
+          "product",
+          "cart"
+        ]
+      },
+      "OrderItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductDto"
+          },
+          "size": {
+            "$ref": "#/components/schemas/SizeDto"
+          }
+        },
+        "required": ["id", "price", "quantity", "product", "size"]
+      },
+      "PaymentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": ["id", "price", "status", "createdAt"]
+      },
+      "OrderResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "subtotal": {
+            "type": "number"
+          },
+          "totalQuantity": {
+            "type": "number"
+          },
+          "usePoint": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          },
+          "payments": {
+            "$ref": "#/components/schemas/PaymentDto"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "phoneNumber",
+          "address",
+          "subtotal",
+          "totalQuantity",
+          "usePoint",
+          "createdAt",
+          "orderItems",
+          "payments"
+        ]
+      },
+      "CreateOrderItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "example": "product1",
+            "description": "주문할 상품 ID"
+          },
+          "sizeId": {
+            "type": "number",
+            "example": 1,
+            "description": "사이즈 ID"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 2,
+            "description": "상품 수량"
+          }
+        },
+        "required": ["productId", "sizeId", "quantity"]
+      },
+      "CreateOrderDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "홍길동",
+            "description": "구매자 이름"
+          },
+          "phone": {
+            "type": "string",
+            "example": "010-1234-5678",
+            "description": "구매자 연락처"
+          },
+          "address": {
+            "type": "string",
+            "example": "서울특별시 강남구",
+            "description": "배송지 주소"
+          },
+          "orderItems": {
+            "description": "주문할 상품 목록",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderItemDto"
+            }
+          },
+          "usePoint": {
+            "type": "number",
+            "example": 1000,
+            "description": "사용할 포인트 (0 이상)"
+          }
+        },
+        "required": ["name", "phone", "address", "orderItems", "usePoint"]
+      },
+      "UpdateOrderDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "구매자",
+            "description": "구매자 이름"
+          },
+          "phone": {
+            "type": "string",
+            "example": "010-1234-5789",
+            "description": "구매자 연락처"
+          },
+          "address": {
+            "type": "string",
+            "example": "서울특별시 강남구",
+            "description": "배송지 주소"
+          },
+          "orderItems": {
+            "description": "주문할 상품 목록",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderItemDto"
+            }
+          },
+          "usePoint": {
+            "type": "number",
+            "example": 1000,
+            "description": "사용할 포인트 (0 이상)"
+          }
+        }
+      },
+      "UpdateReviewDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "example": 4.5,
+            "minimum": 1,
+            "maximum": 5,
+            "description": "별점 (1~5)"
+          }
+        },
+        "required": ["rating"]
+      },
+      "ReviewResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": ["id", "userId", "productId", "rating", "content", "createdAt"]
+      },
+      "CreateReviewDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "example": 5,
+            "minimum": 1,
+            "maximum": 5,
+            "description": "별점 (1~5)"
+          },
+          "content": {
+            "type": "string",
+            "example": "이 상품 정말 좋아요!",
+            "minLength": 10,
+            "description": "리뷰 내용"
+          }
+        },
+        "required": ["rating", "content"]
+      },
+      "NotFoundInquiryDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "문의가 존재하지 않습니다."
+          },
+          "statusCode": {
+            "type": "number",
+            "example": 404
+          },
+          "error": {
+            "type": "string",
+            "example": "Not Found"
+          }
+        },
+        "required": ["message", "statusCode", "error"]
+      },
+      "InquiryReplyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "CUID",
+            "description": "답변 ID"
+          },
+          "inquiryId": {
+            "type": "string",
+            "example": "CUID",
+            "description": "문의 ID"
+          },
+          "userId": {
+            "type": "object",
+            "example": "CUID",
+            "description": "작성자 ID",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "example": "이 제품은 재입고 예정입니다.",
+            "description": "답변 내용"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-06-01T12:00:00.000Z",
+            "description": "생성일"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-06-01T12:00:00.000Z",
+            "description": "수정일"
+          }
+        },
+        "required": ["id", "inquiryId", "userId", "content", "createdAt", "updatedAt"]
+      },
+      "CreateInquiryReplyDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "답변 내용",
+            "example": "답변 내용입니다."
+          }
+        },
+        "required": ["content"]
+      },
+      "UpdateInquiryDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "문의 제목",
+            "example": " 상품 문의합니다."
+          },
+          "content": {
+            "type": "string",
+            "description": "문의 내용",
+            "example": "문의 내용입니다."
+          },
+          "isSecret": {
+            "type": "boolean",
+            "description": "비밀 글",
+            "example": false
+          }
+        }
+      },
+      "UpdateInquiryReplyDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "답변 내용",
+            "example": "답변 내용입니다."
+          }
+        }
+      },
+      "SalesLog": {
+        "type": "object",
+        "properties": {
+          "totalOrders": {
+            "type": "number",
+            "example": 38,
+            "description": "주문 상품 수"
+          },
+          "totalSales": {
+            "type": "number",
+            "example": 15000000,
+            "description": "총 주문 판매 금액"
+          }
+        },
+        "required": ["totalOrders", "totalSales"]
+      },
+      "SaleLogChangeRate": {
+        "type": "object",
+        "properties": {
+          "totalOrders": {
+            "type": "number",
+            "example": 23,
+            "description": "주문 상품 수 (%)"
+          },
+          "totalSales": {
+            "type": "number",
+            "example": 20,
+            "description": "총 주문 판매 금액 (%)"
+          }
+        },
+        "required": ["totalOrders", "totalSales"]
+      },
+      "SummarySalesLog": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "description": "현재",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SalesLog"
+              }
+            ]
+          },
+          "previous": {
+            "description": "이전",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SalesLog"
+              }
+            ]
+          },
+          "changeRate": {
+            "description": "변동률 (%)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SaleLogChangeRate"
+              }
+            ]
+          }
+        },
+        "required": ["current", "previous", "changeRate"]
+      },
+      "ProductInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "product-cuid",
+            "description": "상품 ID"
+          },
+          "name": {
+            "type": "string",
+            "example": "스웨터",
+            "description": "상품이름"
+          },
+          "price": {
+            "type": "number",
+            "example": 30000,
+            "description": "상품 가격"
+          }
+        },
+        "required": ["id", "name", "price"]
+      },
+      "TopSales": {
+        "type": "object",
+        "properties": {
+          "totalOrders": {
+            "type": "number",
+            "example": 215,
+            "description": "상품 주문 수"
+          },
+          "product": {
+            "description": "상품 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductInfo"
+              }
+            ]
+          }
+        },
+        "required": ["totalOrders", "product"]
+      },
+      "PriceRangeDto": {
+        "type": "object",
+        "properties": {
+          "priceRange": {
+            "type": "string",
+            "example": "만원 이하",
+            "description": "가격대"
+          },
+          "totalSales": {
+            "type": "number",
+            "example": 3505000,
+            "description": "가격대의 총 판매 금액"
+          },
+          "percentage": {
+            "type": "number",
+            "example": 35.6,
+            "description": "해당 가격대의 판매 비율"
+          }
+        },
+        "required": ["priceRange", "totalSales", "percentage"]
+      },
+      "FindDashboardResponseDto": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "description": "오늘 판매 관련",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SummarySalesLog"
+              }
+            ]
+          },
+          "week": {
+            "description": "이번 주 판매 관련",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SummarySalesLog"
+              }
+            ]
+          },
+          "month": {
+            "description": "이번 달 판매 관련",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SummarySalesLog"
+              }
+            ]
+          },
+          "year": {
+            "description": "올해 판매 관련",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SummarySalesLog"
+              }
+            ]
+          },
+          "topSales": {
+            "description": "인기 상품 top 5",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopSales"
+            }
+          },
+          "priceRange": {
+            "description": "가격대 비율",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PriceRangeDto"
+            }
+          }
+        },
+        "required": ["today", "week", "month", "year", "topSales", "priceRange"]
+      },
+      "AlarmDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "alarm_123",
+            "description": "알람 ID"
+          },
+          "userId": {
+            "type": "string",
+            "example": "user_456",
+            "description": "사용자 ID"
+          },
+          "content": {
+            "type": "string",
+            "example": "상품이 품절되었습니다.",
+            "description": "알람 내용"
+          },
+          "isChecked": {
+            "type": "boolean",
+            "example": false,
+            "description": "알람 확인 여부"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-03T12:00:00.000Z",
+            "description": "생성일시"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-06-03T12:00:00.000Z",
+            "description": "수정일시"
+          }
+        },
+        "required": ["id", "userId", "content", "isChecked", "createdAt", "updatedAt"]
+      }
+    }
+  }
+}

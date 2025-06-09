@@ -1,72 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
-      "get": {
-        "operationId": "AppController_getHello",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": ["App"]
-      }
-    },
-    "/s3/upload": {
-      "post": {
-        "operationId": "S3Controller_uploadFile",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": ["S3"]
-      }
-    },
-    "/s3/download/{key}": {
-      "get": {
-        "operationId": "S3Controller_getFile",
-        "parameters": [
-          {
-            "name": "key",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": ["S3"]
-      }
-    },
-    "/s3/delete/{key}": {
-      "delete": {
-        "operationId": "S3Controller_deleteFile",
-        "parameters": [
-          {
-            "name": "key",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": ["S3"]
-      }
-    },
     "/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -200,6 +134,48 @@
           }
         ],
         "summary": "Refresh Token으로 Access Token 재발급",
+        "tags": ["Auth"]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "description": "로그인된 사용자의 세션(리프레시 토큰)을 제거합니다.",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "로그아웃 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "성공적으로 로그아웃되었습니다."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "인증이 필요합니다.",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "로그아웃",
         "tags": ["Auth"]
       }
     },
@@ -370,7 +346,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "example": null
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -539,7 +515,13 @@
               }
             },
             "schema": {
-              "enum": ["mostReviewed", "recent", "lowPrice", "highPrice", "highRating"],
+              "enum": [
+                "mostReviewed",
+                "recent",
+                "lowPrice",
+                "highPrice",
+                "highRating"
+              ],
               "type": "string"
             }
           }
@@ -635,7 +617,7 @@
             "in": "path",
             "description": "조회할 상품 ID",
             "schema": {
-              "example": "cjld9a5b0000000000000001",
+              "example": "CUID",
               "type": "string"
             }
           }
@@ -675,7 +657,7 @@
             "in": "path",
             "description": "삭제할 상품 ID",
             "schema": {
-              "example": "cjld9a5b0000000000000001",
+              "example": "CUID",
               "type": "string"
             }
           }
@@ -810,6 +792,7 @@
     },
     "/stores": {
       "post": {
+        "description": "내 스토어를 등록합니다 (1개만 가능)",
         "operationId": "StoreController_register",
         "parameters": [],
         "requestBody": {
@@ -845,6 +828,7 @@
     },
     "/stores/{storeId}": {
       "patch": {
+        "description": "내 스토어 정보 수정입니다.",
         "operationId": "StoreController_update",
         "parameters": [
           {
@@ -888,6 +872,7 @@
         "tags": ["Store"]
       },
       "get": {
+        "description": "스토어 상세 조회입니다.",
         "operationId": "StoreController_findStore",
         "parameters": [
           {
@@ -912,7 +897,7 @@
             }
           }
         },
-        "summary": "스토어 조회",
+        "summary": "스토어 상세세 조회",
         "tags": ["Store"]
       }
     },
@@ -2596,11 +2581,46 @@
         "summary": "알람 읽음 처리",
         "tags": ["Alarm"]
       }
+    },
+    "/metadata/size": {
+      "get": {
+        "description": "사이즈 값 가져오기",
+        "operationId": "MetadataController_getSize",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "사이즈 값",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SizeResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "사이즈 값 조회",
+        "tags": ["Metadata"]
+      }
+    },
+    "/metadata/category/{target}": {
+      "get": {
+        "description": "카테고리 값 가져오기",
+        "operationId": "MetadataController_getCategory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "카테고리 값 "
+          }
+        },
+        "summary": "카테고리 값 조회",
+        "tags": ["Metadata"]
+      }
     }
   },
   "info": {
     "title": "CODI-IT",
-    "description": "API 설명",
+    "description": "CODI-IT API 명세입니다.",
     "version": "1.0.0",
     "contact": {}
   },
@@ -2930,13 +2950,13 @@
           "discountStartTime": {
             "format": "date-time",
             "type": "string",
-            "example": "2025-06-05T09:46:55.566Z",
+            "example": "2025-06-09T04:22:33.652Z",
             "description": "할인 시작 날짜"
           },
           "discountEndTime": {
             "format": "date-time",
             "type": "string",
-            "example": "2025-06-05T09:46:55.566Z",
+            "example": "2025-06-09T04:22:33.652Z",
             "description": "할인 종료 날짜"
           },
           "categoryId": {
@@ -3148,13 +3168,13 @@
           "discountStartTime": {
             "format": "date-time",
             "type": "string",
-            "example": "2025-06-05T09:46:55.566Z",
+            "example": "2025-06-09T04:22:33.652Z",
             "description": "할인 시작 날짜"
           },
           "discountEndTime": {
             "format": "date-time",
             "type": "string",
-            "example": "2025-06-05T09:46:55.566Z",
+            "example": "2025-06-09T04:22:33.652Z",
             "description": "할인 종료 날짜"
           },
           "categoryId": {
@@ -3337,10 +3357,6 @@
             "type": "string",
             "example": "register"
           },
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
           "store": {
             "allOf": [
               {
@@ -3349,7 +3365,7 @@
             ]
           }
         },
-        "required": ["type", "success", "store"]
+        "required": ["type", "store"]
       },
       "StoreDto": {
         "type": "object",
@@ -3571,7 +3587,14 @@
             }
           }
         },
-        "required": ["id", "buyerId", "quantity", "createdAt", "updatedAt", "items"]
+        "required": [
+          "id",
+          "buyerId",
+          "quantity",
+          "createdAt",
+          "updatedAt",
+          "items"
+        ]
       },
       "UpdateCartDto": {
         "type": "object",
@@ -3876,7 +3899,14 @@
             "type": "string"
           }
         },
-        "required": ["id", "userId", "productId", "rating", "content", "createdAt"]
+        "required": [
+          "id",
+          "userId",
+          "productId",
+          "rating",
+          "content",
+          "createdAt"
+        ]
       },
       "CreateReviewDto": {
         "type": "object",
@@ -3952,7 +3982,14 @@
             "description": "수정일"
           }
         },
-        "required": ["id", "inquiryId", "userId", "content", "createdAt", "updatedAt"]
+        "required": [
+          "id",
+          "inquiryId",
+          "userId",
+          "content",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "CreateInquiryReplyDto": {
         "type": "object",
@@ -4206,7 +4243,38 @@
             "description": "수정일시"
           }
         },
-        "required": ["id", "userId", "content", "isChecked", "createdAt", "updatedAt"]
+        "required": [
+          "id",
+          "userId",
+          "content",
+          "isChecked",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SizeResponse": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "object",
+            "description": "사이즈 json",
+            "example": {
+              "ko": "L",
+              "en": "Large"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "사이즈 name",
+            "example": "L"
+          },
+          "id": {
+            "type": "number",
+            "description": "사이즈 ID",
+            "example": "CUID"
+          }
+        },
+        "required": ["size", "name", "id"]
       }
     }
   }
